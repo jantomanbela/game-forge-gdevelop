@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕹️ GAME FORGE – GDevelop</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#18181f;--border:#22222f;
+  --green:#22C55E;--green-bg:#052e16;
+  --yellow:#FACC15;--yellow-bg:#1c1400;
+  --red:#EF4444;--red-bg:#1a0505;
+  --orange:#FB923C;--orange-bg:#1a0a00;
+  --cyan:#22D3EE;--cyan-bg:#0a1f2e;
+  --text:#F1F1FF;--text2:#9999BB;--text3:#5555AA;
+  --purple:#A78BFA;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.65;}
+.pixel{font-family:'Press Start 2P',monospace;}
+
+/* HERO */
+.hero{background:var(--bg);padding:56px 20px 44px;text-align:center;border-bottom:2px solid var(--border);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(251,146,60,.06) 0%,transparent 70%);pointer-events:none;}
+.hero-eye{font-size:11px;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;margin-bottom:14px;}
+.hero h1{font-family:'Press Start 2P',monospace;font-size:clamp(20px,4.5vw,44px);color:var(--orange);line-height:1.25;margin-bottom:10px;}
+.hero-sub{color:var(--text2);font-size:16px;margin-bottom:28px;}
+.hero-levels{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:32px;}
+.lpill{padding:10px 20px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:.2s;}
+.lpill:hover,.lpill.active{transform:translateY(-2px);}
+.p-g{background:var(--green-bg);color:var(--green);border-color:var(--green);}
+.p-y{background:var(--yellow-bg);color:var(--yellow);border-color:var(--yellow);}
+.p-r{background:var(--red-bg);color:var(--red);border-color:var(--red);}
+.p-o{background:var(--orange-bg);color:var(--orange);border-color:var(--orange);}
+.p-g.active{background:var(--green);color:#052e16;}
+.p-y.active{background:var(--yellow);color:#1c1400;}
+.p-r.active{background:var(--red);color:#1a0505;}
+.p-o.active{background:var(--orange);color:#1a0a00;}
+.hero-inputs{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;}
+.iw{display:flex;flex-direction:column;gap:5px;}
+.iw label{font-size:11px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;}
+.iw input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 14px;font-size:14px;font-family:'Inter',sans-serif;width:190px;outline:none;transition:.2s;}
+.iw input:focus{border-color:var(--orange);}
+
+/* PROGRESS */
+.prog-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:11px 22px;display:flex;align-items:center;gap:14px;}
+.prog-lbl{font-size:12px;color:var(--text2);white-space:nowrap;min-width:80px;}
+.prog-track{flex:1;height:8px;background:var(--bg3);border-radius:999px;overflow:hidden;max-width:360px;}
+.prog-fill{height:100%;border-radius:999px;background:var(--orange);transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+.prog-pct{font-size:12px;font-weight:700;color:var(--orange);min-width:34px;text-align:right;}
+.xp{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;margin-left:auto;}
+
+/* PAGE */
+.page{display:none;max-width:820px;margin:0 auto;padding:34px 20px 80px;}
+.page.active{display:block;}
+
+/* LEVEL HEADER */
+.lh{border-radius:12px;padding:26px 30px;margin-bottom:30px;border:2px solid;}
+.lh-g{background:var(--green-bg);border-color:var(--green);}
+.lh-y{background:var(--yellow-bg);border-color:var(--yellow);}
+.lh-r{background:var(--red-bg);border-color:var(--red);}
+.lh-o{background:var(--orange-bg);border-color:var(--orange);}
+.lh-tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;}
+.lh-g .lh-tag{color:var(--green);}
+.lh-y .lh-tag{color:var(--yellow);}
+.lh-r .lh-tag{color:var(--red);}
+.lh-o .lh-tag{color:var(--orange);}
+.lh-title{font-family:'Press Start 2P',monospace;font-size:clamp(14px,2.5vw,22px);line-height:1.45;margin-bottom:9px;}
+.lh-g .lh-title{color:var(--green);}
+.lh-y .lh-title{color:var(--yellow);}
+.lh-r .lh-title{color:var(--red);}
+.lh-o .lh-title{color:var(--orange);}
+.lh-sub{color:var(--text2);font-size:14px;}
+
+/* SECTION */
+.sec{margin-bottom:32px;}
+.sec-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:9px 14px;border-radius:7px;margin-bottom:14px;display:flex;align-items:center;gap:7px;border-left:3px solid;}
+.st-g{background:var(--green-bg);color:var(--green);border-color:var(--green);}
+.st-y{background:var(--yellow-bg);color:var(--yellow);border-color:var(--yellow);}
+.st-r{background:var(--red-bg);color:var(--red);border-color:var(--red);}
+.st-o{background:var(--orange-bg);color:var(--orange);border-color:var(--orange);}
+.st-dk{background:var(--bg3);color:var(--yellow);border-color:var(--yellow);}
+
+/* OPEN BUTTON */
+.open-cta{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:18px 22px;margin-bottom:26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.open-btn{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-weight:700;font-size:14px;padding:11px 22px;border-radius:9px;text-decoration:none;transition:.15s;white-space:nowrap;}
+.open-btn:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.open-cta p{color:var(--text2);font-size:13px;flex:1;}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:7px;margin:10px 0;}
+.step{display:flex;gap:13px;align-items:flex-start;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:13px 15px;cursor:pointer;transition:.2s;user-select:none;}
+.step:hover{border-color:var(--text3);}
+.step.done{background:#061a10;border-color:var(--green);}
+.step-n{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);color:var(--text2);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;}
+.step.done .step-n{background:var(--green);border-color:var(--green);color:#052e16;}
+.step-t{flex:1;padding-top:3px;font-size:14px;}
+.step.done .step-t{color:var(--text2);}
+.step-ck{width:21px;height:21px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;margin-top:3px;display:flex;align-items:center;justify-content:center;transition:.2s;font-size:13px;}
+.step.done .step-ck{background:var(--green);border-color:var(--green);color:#052e16;}
+.step.done .step-ck::after{content:'✓';font-weight:900;}
+
+/* EVENT BOX */
+.event-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin:12px 0;overflow:hidden;}
+.ev-condition{background:#1a2a1a;border-bottom:1px solid var(--border);padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:8px;}
+.ev-cond-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);background:var(--green-bg);border:1px solid var(--green);border-radius:4px;padding:2px 8px;flex-shrink:0;}
+.ev-condition span{color:var(--text);}
+.ev-action{background:#1a1a2a;padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:8px;}
+.ev-act-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--orange);background:var(--orange-bg);border:1px solid var(--orange);border-radius:4px;padding:2px 8px;flex-shrink:0;}
+.ev-action span{color:var(--text);}
+.ev-note{padding:8px 16px;font-size:12px;color:var(--text3);background:var(--bg2);border-top:1px solid var(--border);}
+
+/* CALLOUTS */
+.tip{background:#0a1830;border-left:3px solid #3B82F6;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:14px;color:var(--text2);}
+.tip strong{color:#60A5FA;display:block;margin-bottom:3px;}
+.warn{background:#1a0f00;border-left:3px solid #F59E0B;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:14px;color:var(--text2);}
+.warn strong{color:#F59E0B;display:block;margin-bottom:3px;}
+.think{background:#0f0f2a;border:1px dashed var(--text3);border-radius:8px;padding:11px 15px;margin:10px 0;font-size:14px;color:var(--text2);}
+.think::before{content:'🤔  Přemýšlej: ';font-weight:700;color:var(--purple);}
+
+/* WHERE */
+.where{background:var(--bg3);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:13px;color:var(--text2);}
+.where strong{color:var(--orange);display:block;margin-bottom:5px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+
+/* HINT */
+.hint-btn{background:var(--bg3);border:1px dashed var(--border);border-radius:7px;padding:7px 13px;font-size:13px;color:var(--text3);cursor:pointer;margin-top:7px;font-family:'Inter',sans-serif;transition:.2s;display:inline-flex;align-items:center;gap:5px;}
+.hint-btn:hover{color:var(--text);border-color:var(--text3);}
+.hint-body{display:none;background:var(--bg3);border-radius:7px;padding:11px 15px;margin-top:5px;font-size:13px;color:var(--text2);border-left:3px solid var(--purple);}
+.hint-body.open{display:block;}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:5px;}
+.ci{display:flex;gap:9px;align-items:flex-start;padding:9px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;transition:.2s;}
+.ci:has(input:checked){background:#061a10;border-color:var(--green);}
+.ci input[type=checkbox]{width:17px;height:17px;margin-top:2px;flex-shrink:0;accent-color:var(--green);cursor:pointer;}
+.ci label{cursor:pointer;font-size:14px;color:var(--text2);}
+.ci:has(input:checked) label{opacity:.55;text-decoration:line-through;}
+
+/* LEVEL COMPLETE */
+.lc{display:none;text-align:center;padding:36px 20px;background:var(--green-bg);border:2px solid var(--green);border-radius:14px;margin-top:28px;}
+.lc .pixel{font-size:clamp(13px,2.5vw,18px);color:var(--green);line-height:1.6;}
+.lc p{color:var(--text2);margin-top:10px;font-size:14px;}
+.next-btn{display:inline-flex;align-items:center;gap:7px;background:var(--green);color:#052e16;font-weight:700;font-size:14px;padding:11px 26px;border-radius:9px;border:none;cursor:pointer;font-family:'Inter',sans-serif;margin-top:18px;transition:.15s;}
+.next-btn:hover{filter:brightness(1.1);}
+
+/* ASSESS */
+.at{width:100%;border-collapse:separate;border-spacing:0 5px;font-size:14px;}
+.at th{background:var(--bg3);color:var(--yellow);padding:9px 13px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.07em;}
+.at th:not(:first-child){text-align:center;}
+.at td{padding:9px 13px;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.at td:first-child{border-left:1px solid var(--border);border-radius:7px 0 0 7px;}
+.at td:last-child{border-right:1px solid var(--border);border-radius:0 7px 7px 0;text-align:center;}
+.at td:not(:first-child){text-align:center;}
+.at input[type=radio]{accent-color:var(--green);width:15px;height:15px;cursor:pointer;}
+.rf{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.rf label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;}
+.rf textarea,.rf input[type=text]{background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:9px 13px;font-family:'Inter',sans-serif;font-size:14px;resize:vertical;outline:none;transition:.2s;}
+.rf textarea:focus,.rf input:focus{border-color:var(--orange);}
+p{margin-bottom:7px;}
+b{font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eye">Základní škola Bakov nad Jizerou · Informatika</div>
+  <h1 class="pixel">GAME FORGE</h1>
+  <p class="hero-sub">Tvoříme hry v GDevelop — profesionální engine, žádné psaní kódu</p>
+  <div class="hero-levels">
+    <div class="lpill p-g active" onclick="showPage('l1',this)">🟢 Level 1 – První scéna</div>
+    <div class="lpill p-y" onclick="showPage('l2',this)">🟡 Level 2 – Pohyb</div>
+    <div class="lpill p-r" onclick="showPage('l3',this)">🔴 Level 3 – Nepřátelé</div>
+    <div class="lpill p-o" onclick="showPage('l4',this)">🟠 Level 4 – Hotová hra</div>
+  </div>
+  <div class="hero-inputs">
+    <div class="iw"><label>Jméno</label><input type="text" placeholder="Tvoje jméno"></div>
+    <div class="iw"><label>Třída</label><input type="text" placeholder="Třída" style="width:110px"></div>
+  </div>
+</div>
+
+<div class="prog-bar">
+  <span class="prog-lbl" id="prog-lbl">Level 1 · 0/0</span>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <span class="prog-pct" id="prog-pct">0%</span>
+  <span class="xp" id="xp-badge">0 XP</span>
+</div>
+
+<!-- ═══════════ LEVEL 1 ═══════════ -->
+<div class="page active" id="page-l1">
+  <div class="lh lh-g">
+    <div class="lh-tag">🟢 Level 1 – První scéna · cca 15 minut</div>
+    <div class="lh-title">🎬 NASTAV SCÉNU</div>
+    <p class="lh-sub">GDevelop používají skuteční indie vývojáři. Dnes si vytvoříš první herní scénu s postavou.</p>
+  </div>
+
+  <div class="open-cta">
+    <a class="open-btn" href="https://editor.gdevelop.io/" target="_blank">🕹️ Otevřít GDevelop</a>
+    <p>Klikni — editor se otevře v prohlížeči. Klikni na „Create a new project" → „Empty game". Žádná registrace.</p>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-g">🎯 Co se naučíš</div>
+    <div class="checklist">
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Orientace v GDevelop editoru</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Co je objekt (sprite) a jak ho přidat do hry</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Co je scéna a jak funguje herní plocha</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Jak spustit hru v náhledu</label></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-g">🗺️ Krok 1 — Poznej GDevelop</div>
+    <div class="where">
+      <strong>Orientace v editoru</strong>
+      <b>Vlevo</b> — projekt a scény &nbsp;·&nbsp; <b>Uprostřed</b> — herní plocha (sem přidáváš objekty) &nbsp;·&nbsp; <b>Vpravo nahoře</b> — panel objektů &nbsp;·&nbsp; <b>Vpravo dole</b> — vlastnosti vybraného objektu &nbsp;·&nbsp; <b>▶ Preview</b> nahoře — spustí hru v náhledu
+    </div>
+    <div class="steps">
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">1</div><div class="step-t">V levém panelu vidíš „Scene 1" — to je tvoje herní scéna. Dvakrát klikni pro otevření.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">2</div><div class="step-t">Klikni na <b>▶ Preview</b> nahoře. Otevře se prázdné okno — to je tvoje (zatím prázdná) hra!</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">3</div><div class="step-t">Zavři náhled a vrať se do editoru.</div><div class="step-ck"></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-g">🧑 Krok 2 — Přidej postavu</div>
+    <div class="think">Co je objekt v herním enginu? Proč se postava nazývá „sprite"? Odkud pochází tento název?</div>
+    <div class="steps">
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">1</div><div class="step-t">V pravém panelu klikni na <b>„+ Add object"</b> → vyber <b>„Sprite"</b>.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">2</div><div class="step-t">Pojmenuj objekt <b>„Hrac"</b> (bez diakritiky — GDevelop má rád jednoduché názvy).</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">3</div><div class="step-t">Klikni na <b>„Add animation"</b> → <b>„Add a sprite"</b> → vyber libovolný obrázek z GDevelop knihovny.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">4</div><div class="step-t">Klikni <b>Apply</b>. Přetáhni objekt Hrac z pravého panelu na herní plochu.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">5</div><div class="step-t">Klikni ▶ Preview — vidíš postavu na herní ploše?</div><div class="step-ck"></div></div>
+    </div>
+    <div class="tip"><strong>💡 Co je sprite?</strong>Sprite = 2D obrázek v herním prostředí. Pochází z 80. let — tehdy se malé pohyblivé obrázky v hrách nazývaly sprites (víly). Dnes se tak nazývá každý herní objekt s grafikou.</div>
+
+    <div class="lc" id="complete-l1">
+      <div class="pixel">LEVEL 1 CLEAR!</div>
+      <p>Tvoje první herní scéna s postavou existuje. Teď ji rozhýbáme!</p>
+      <button class="next-btn" onclick="showPage('l2',document.querySelectorAll('.lpill')[1]);window.scrollTo(0,0)">Level 2 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ LEVEL 2 ═══════════ -->
+<div class="page" id="page-l2">
+  <div class="lh lh-y">
+    <div class="lh-tag">🟡 Level 2 – Pohyb · cca 20 minut</div>
+    <div class="lh-title">⌨️ POHYB A FYZIKA</div>
+    <p class="lh-sub">GDevelop používá systém Událostí — POKUD nastane podmínka → POTOM proveď akci. Žádné psaní kódu.</p>
+  </div>
+
+  <div class="open-cta">
+    <a class="open-btn" href="https://editor.gdevelop.io/" target="_blank">🕹️ Otevřít GDevelop</a>
+    <p>Otevři svůj projekt z Levelu 1.</p>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-y">🎯 Co se naučíš</div>
+    <div class="checklist">
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Systém událostí — Podmínka → Akce</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Pohyb postavy šipkami</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Jak funguje souřadnicový systém v GDevelop</label></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-y">⚡ Krok 1 — Systém událostí</div>
+    <p>GDevelop neprogramuje kódem, ale <b>událostmi</b>. Každá událost říká: <b>POKUD [podmínka] → PAK [akce]</b>.</p>
+    <div class="think">Jak by vypadala událost pro pohyb doprava? Co je podmínka? Co je akce?</div>
+
+    <p style="margin-top:12px;font-weight:700;font-size:13px;color:var(--text2);">Takhle vypadá událost pohybu v GDevelop:</p>
+
+    <div class="event-box">
+      <div class="ev-condition">
+        <span class="ev-cond-label">PODMÍNKA</span>
+        <span>Klávesa „Šipka vpravo" je stisknuta</span>
+      </div>
+      <div class="ev-action">
+        <span class="ev-act-label">AKCE</span>
+        <span>Přidej k pozici X objektu Hrac hodnotu +300 × čas</span>
+      </div>
+      <div class="ev-note">× čas = pohyb je stejně rychlý na každém počítači (bez ohledu na fps)</div>
+    </div>
+
+    <div class="event-box">
+      <div class="ev-condition">
+        <span class="ev-cond-label">PODMÍNKA</span>
+        <span>Klávesa „Šipka vlevo" je stisknuta</span>
+      </div>
+      <div class="ev-action">
+        <span class="ev-act-label">AKCE</span>
+        <span>Přidej k pozici X objektu Hrac hodnotu -300 × čas</span>
+      </div>
+    </div>
+
+    <div class="where" style="margin-top:14px;">
+      <strong>Kde události najdeš</strong>
+      Záložka <b>Events</b> (nahoře v editoru scény) → <b>Add event</b> → <b>Add condition</b> → hledej „Key pressed" → vyber klávesu → <b>Add action</b> → hledej „Position" → nastav X nebo Y
+    </div>
+
+    <div class="steps">
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">1</div><div class="step-t">Otevři záložku <b>Events</b> v editoru scény.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">2</div><div class="step-t">Klikni <b>Add event</b>. Vlevo přidej podmínku: <b>Keyboard → Key pressed → Right</b>.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">3</div><div class="step-t">Vpravo přidej akci: vyber objekt <b>Hrac</b> → <b>Position → Add to X position</b> → napiš <b>300 * TimeDelta()</b>.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">4</div><div class="step-t">Opakuj pro šipku vlevo (-300), nahoru (-300 na Y) a dolů (+300 na Y).</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">5</div><div class="step-t">Klikni ▶ Preview a otestuj pohyb šipkami.</div><div class="step-ck"></div></div>
+    </div>
+    <div class="tip"><strong>💡 Co je TimeDelta()?</strong>TimeDelta() = čas od posledního snímku. Bez něj by hra běžela rychleji na rychlém počítači a pomaleji na pomalém. S TimeDelta() je pohyb vždy stejně rychlý.</div>
+    <div class="warn"><strong>⚠ Postava se nehýbe?</strong>Zkontroluj: (1) je podmínka správně — „Key is pressed" ne „Key was just pressed"? (2) Je v akci správný název objektu — přesně „Hrac"?</div>
+
+    <div class="lc" id="complete-l2">
+      <div class="pixel">LEVEL 2 CLEAR!</div>
+      <p>Postava se hýbe! Tohle je jádro každé 2D hry.</p>
+      <button class="next-btn" onclick="showPage('l3',document.querySelectorAll('.lpill')[2]);window.scrollTo(0,0)">Level 3 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ LEVEL 3 ═══════════ -->
+<div class="page" id="page-l3">
+  <div class="lh lh-r">
+    <div class="lh-tag">🔴 Level 3 – Nepřátelé · cca 20 minut</div>
+    <div class="lh-title">👾 PŘIDEJ NEPŘÍTELE</div>
+    <p class="lh-sub">Přidáš nepřítele, kolize a životy. Hra začne mít smysl.</p>
+  </div>
+
+  <div class="open-cta">
+    <a class="open-btn" href="https://editor.gdevelop.io/" target="_blank">🕹️ Otevřít GDevelop</a>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-r">🎯 Co přidáš</div>
+    <div class="checklist">
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>👾 Nepřítel pohybující se po ploše</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>💥 Kolize — co se stane při srážce</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>❤ Proměnná Životy</label></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-r">👾 Krok 1 — Nepřítel</div>
+    <div class="steps">
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">1</div><div class="step-t">Přidej nový objekt Sprite → pojmenuj <b>„Nepritel"</b> → vyber grafiku.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">2</div><div class="step-t">Přetáhni Nepritel na herní plochu.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">3</div><div class="step-t">V záložce Events přidej událost bez podmínky (Always): akce → <b>Nepritel → Move toward position</b> → nastav pohyb ke hráči nebo náhodný směr.</div><div class="step-ck"></div></div>
+    </div>
+    <div class="tip"><strong>💡 Alternativa — Pathfinding behavior</strong>GDevelop má chování „Pathfinding" — nepřítel automaticky najde cestu k hráči kolem překážek. Přidáš ho přes panel objektu → Add behavior → Pathfinding.</div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-r">💥 Krok 2 — Kolize a životy</div>
+    <div class="think">Co se má stát při srážce hráče s nepřítelem? Odrazit se? Ztratit život? Zemřít okamžitě? Vyber si a zdůvodni.</div>
+
+    <p style="margin:12px 0 8px;font-weight:700;font-size:13px;color:var(--text2);">Událost kolize:</p>
+    <div class="event-box">
+      <div class="ev-condition">
+        <span class="ev-cond-label">PODMÍNKA</span>
+        <span>Hrac koliduje s objektem Nepritel</span>
+      </div>
+      <div class="ev-action">
+        <span class="ev-act-label">AKCE</span>
+        <span>Odečti 1 od proměnné Hrac.Zivoty</span>
+      </div>
+    </div>
+    <div class="event-box">
+      <div class="ev-condition">
+        <span class="ev-cond-label">PODMÍNKA</span>
+        <span>Proměnná Hrac.Zivoty je menší nebo rovno 0</span>
+      </div>
+      <div class="ev-action">
+        <span class="ev-act-label">AKCE</span>
+        <span>Restartuj scénu (Game Over)</span>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">1</div><div class="step-t">V Events přidej podmínku: <b>Hrac → Collision → Nepritel</b>.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">2</div><div class="step-t">Akce: <b>Hrac → Variables → Modify variable „Zivoty" → Subtract 1</b>. Přidej „Zivoty" počáteční hodnotu 3 v Properties.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">3</div><div class="step-t">Přidej druhou událost: podmínka Zivoty ≤ 0 → akce <b>Scene → Change to scene „Scene 1"</b> (restart).</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">4</div><div class="step-t">Otestuj: nech nepřítele, aby tě trefil 3×. Restaruje se scéna?</div><div class="step-ck"></div></div>
+    </div>
+
+    <div class="lc" id="complete-l3">
+      <div class="pixel">LEVEL 3 CLEAR!</div>
+      <p>Hra má nepřítele, životy a smrt. To je kompletní herní smyčka!</p>
+      <button class="next-btn" onclick="showPage('l4',document.querySelectorAll('.lpill')[3]);window.scrollTo(0,0)">Level 4 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ LEVEL 4 ═══════════ -->
+<div class="page" id="page-l4">
+  <div class="lh lh-o">
+    <div class="lh-tag">🟠 Level 4 – Hotová hra · cca 20 minut</div>
+    <div class="lh-title">🏆 FINÁLNÍ HRA</div>
+    <p class="lh-sub">Přidáš sbíratelné předměty, skóre, HUD a sdílecí odkaz. Výsledek: hotová hra!</p>
+  </div>
+
+  <div class="open-cta">
+    <a class="open-btn" href="https://editor.gdevelop.io/" target="_blank">🕹️ Otevřít GDevelop</a>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-o">⭐ Krok 1 — Sbíratelné předměty a skóre</div>
+
+    <div class="event-box">
+      <div class="ev-condition">
+        <span class="ev-cond-label">PODMÍNKA</span>
+        <span>Hrac koliduje s objektem Hvezda</span>
+      </div>
+      <div class="ev-action">
+        <span class="ev-act-label">AKCE</span>
+        <span>Přidej 1 k proměnné Skore + Smaž objekt Hvezda</span>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">1</div><div class="step-t">Přidej objekt <b>Hvezda</b> (sprite) a rozmísti ho na herní ploše — klidně 5–10 hvězd.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">2</div><div class="step-t">Přidej událost kolize Hrac + Hvezda → přidej 1 ke Skore → smaž Hvezda.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">3</div><div class="step-t">Přidej výherní podmínku: Skore ≥ 10 → zobraz text „Vyhrál/a jsi!".</div><div class="step-ck"></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-o">📊 Krok 2 — HUD (skóre na obrazovce)</div>
+    <div class="where">
+      <strong>Jak zobrazit skóre</strong>
+      Přidej objekt <b>Text</b> (ne Sprite) → pojmenuj „TextSkore" → v Events přidej akci: <b>TextSkore → Modify the text → „Skóre: " + ToString(Variable(Skore))</b>
+    </div>
+    <div class="steps">
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">1</div><div class="step-t">Přidej objekt Text → pojmenuj „TextSkore" → umísti ho do rohu obrazovky.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">2</div><div class="step-t">V Events přidej vždy (Always) akci: nastav text na „Skóre: " + ToString(Variable(Skore)).</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">3</div><div class="step-t">Stejně přidej text pro Životy.</div><div class="step-ck"></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-o">🌐 Krok 3 — Sdílej hru</div>
+    <div class="steps">
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">1</div><div class="step-t">Nahoře klikni na <b>Publish</b> → <b>Export for the web</b>.</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">2</div><div class="step-t">GDevelop vygeneruje odkaz — zkopíruj a pošli spolužákům!</div><div class="step-ck"></div></div>
+      <div class="step" onclick="toggleStep(this)"><div class="step-n">3</div><div class="step-t">Nech spolužáka zahrát tvoji hru a sleduj co ho mate. Co bys vylepšil/a?</div><div class="step-ck"></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-o">⭐ Bonus výzvy</div>
+    <div class="checklist">
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Přidej animaci postavy — různé snímky pro chůzi vlevo/vpravo</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Přidej zvuk při sbrání hvězdy (Add behavior → Sounds)</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Přidej druhý level — nová scéna s těžším rozmístěním</label></div>
+      <div class="ci"><input type="checkbox" onchange="updateProgress()"><label>Duch sleduje hráče — Move toward position → Hrac.X, Hrac.Y</label></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title st-dk">🏆 Sebehodnocení</div>
+    <table class="at">
+      <thead><tr><th>Dovednost</th><th>😕 Potřebuji pomoc</th><th>🙂 Zvládám</th><th>🤩 Skvěle</th></tr></thead>
+      <tbody id="at-body"></tbody>
+    </table>
+    <div style="margin-top:20px;">
+      <div class="rf"><label>Co bylo nejtěžší?</label><textarea rows="2" placeholder="Napiš sem..."></textarea></div>
+      <div class="rf"><label>Odkaz na moji hru</label><input type="text" placeholder="https://..."></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.lpill').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  updateProgress();
+}
+function toggleStep(el){
+  el.classList.toggle('done');
+  updateProgress();
+  checkComplete();
+}
+function toggleHint(btn){
+  const b=btn.nextElementSibling;
+  b.classList.toggle('open');
+  btn.textContent=b.classList.contains('open')?'🙈 Skrýt':'💡 Nápověda';
+}
+function updateProgress(){
+  const ap=document.querySelector('.page.active');
+  if(!ap)return;
+  const ts=ap.querySelectorAll('.step').length+ap.querySelectorAll('.ci input').length;
+  const dn=ap.querySelectorAll('.step.done').length+ap.querySelectorAll('.ci input:checked').length;
+  const pct=ts>0?Math.round(dn/ts*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-lbl').textContent='Postup · '+dn+'/'+ts;
+  const xp=document.querySelectorAll('.step.done').length*10+document.querySelectorAll('.ci input:checked').length*5;
+  document.getElementById('xp-badge').textContent=xp+' XP';
+}
+function checkComplete(){
+  const ap=document.querySelector('.page.active');
+  if(!ap)return;
+  const id=ap.id.replace('page-','');
+  const el=document.getElementById('complete-'+id);
+  if(!el)return;
+  const all=ap.querySelectorAll('.step').length;
+  const done=ap.querySelectorAll('.step.done').length;
+  if(done>=Math.ceil(all*0.75))el.style.display='block';
+}
+const skills=['Přidání objektu (sprite) do scény','Systém událostí — Podmínka → Akce','Pohyb pomocí kláves','Detekce kolize','Proměnné (Skóre, Životy)','HUD — zobrazení textu','Sdílení hry přes odkaz'];
+const tb=document.getElementById('at-body');
+skills.forEach((s,i)=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML='<td>'+s+'</td>'+[1,2,3].map(v=>'<td><input type="radio" name="s'+i+'" value="'+v+'"></td>').join('');
+  tb.appendChild(tr);
+});
+updateProgress();
+</script>
+</body>
+</html>
